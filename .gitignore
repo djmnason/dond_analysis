@@ -1,10 +1,10 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-*$py.class
+# *.py[cod]
+# *$py.class
 
 # C extensions
-*.so
+# *.so
 
 # Distribution / packaging
 .Python
@@ -66,7 +66,7 @@ instance/
 .webassets-cache
 
 # Scrapy stuff:
-.scrapy
+# .scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -76,11 +76,11 @@ docs/_build/
 target/
 
 # Jupyter Notebook
-.ipynb_checkpoints
+# .ipynb_checkpoints
 
 # IPython
-profile_default/
-ipython_config.py
+# profile_default/
+# ipython_config.py
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
@@ -112,7 +112,7 @@ ipython_config.py
 .pdm-build/
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
+# __pypackages__/
 
 # Celery stuff
 celerybeat-schedule
@@ -152,7 +152,7 @@ dmypy.json
 .pytype/
 
 # Cython debug symbols
-cython_debug/
+# cython_debug/
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
@@ -160,3 +160,6 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+## scratch work notebooks
+*_scratch_work.ipynb
