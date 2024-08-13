@@ -25,14 +25,39 @@ def deal_message_generator(
     player_winnings,
     offers_tracker,
     player_case_value,
+    stay,
 ):
-    if player_winnings > player_case_value:
-        if player_winnings > max(list(offers_tracker.values())):
-            message = 'Congratulations, you made the best deal!'
+    ## player made a deal
+    offers = list(offers_tracker.values())
+    max_ = max(offers)
+    if stay is None:
+        if player_winnings > player_case_value:
+            if player_winnings > max_:
+                message = 'You made the best deal!'
+            else:
+                message = 'You made a good deal!'
         else:
-            message = 'You made a good deal!'
+            message = 'You did not make a good deal.'
+    ## player made a decision at the end
     else:
-        message = 'Sorry, you did not make a good deal.'
+        if stay == 'y':
+            last = offers[-1]
+            if player_winnings > last:
+                if player_winnings > max_:
+                    message = 'You made the best decision by keeping your case!'
+                else:
+                    message = 'You made the right decision by keeping your case!'
+            else:
+                message = 'You did not make the right decision by keeping your case.'
+        else:
+            if player_winnings > player_case_value:
+                if player_winnings > max_:
+                    message = 'You made the best decision by swapping your case!'
+                else:
+                    message = 'You made the right decision by swapping your case!'
+            else:
+                message = 'You did not make the right decision by swapping your case.'
+
     return message
 
 ## final message summary
@@ -41,18 +66,30 @@ def game_summary_message(
         offers_tracker, 
         player_case_number,
         player_case_value, 
+        stay,
+        other_choice,
         round_offer_accepted=None
 ):
-    deal_message = deal_message_generator(player_winnings, offers_tracker, player_case_value)
-    print(f"Game recap:\nYour case: {player_case_number} had a value of ${player_case_value:.2f}")
-    for round_, offer in offers_tracker.items():
-        if round_ == round_offer_accepted:
-            accepted_message = 'Yes'
-        elif round_ > round_offer_accepted:
-            accepted_message = 'Already accepted'
+    deal_message = deal_message_generator(player_winnings, offers_tracker, player_case_value, stay)
+    round_offer_accepted = round_offer_accepted or 10
+    print('Game recap:\n')
+    if stay is None:
+        print(f"Your case {player_case_number} had a value of ${player_case_value:.2f}")
+    else:
+        if stay == 'y':
+            print(f"Your case had a value of ${player_case_value:.2f} while the other case had a value of ${other_choice:.2f}.")
         else:
-            accepted_message = 'No'
-        print(f"Round {round_} offer of ${offer:.2f}. Offer accepted?: {accepted_message}")
+            print(f"The case you switched to had a value of ${player_winnings:.2f} while your original case had a value of ${player_case_value:.2f}.")
+    for round_, offer in offers_tracker.items():
+        if round_ < 10:
+            if round_ == round_offer_accepted:
+                accepted_message = 'Yes'
+            elif round_ > round_offer_accepted:
+                accepted_message = 'Already accepted'
+            else:
+                accepted_message = 'No'
+            print(f"Round {round_} offer of ${offer:.2f}. Offer accepted?: {accepted_message}")
+    
     print(f'{deal_message}\nYour winnings: ${player_winnings:.2f}\n\nThank you for playing Deal or No Deal!')
 
 def print_round_start(round_number, cases, case_values):
@@ -74,7 +111,7 @@ def find_quantile_index(qtile, seq):
         raise ValueError(f'Quantile expected to be between 0 and 1, received {qtile}.')
 
 def validate_index_bounds(ind, bound):
-    return min(0, ind-bound), ind+bound
+    return max(0, ind-bound), ind+bound
 
 def get_quantile_range(remaining_avg, round_number, model_dict):
     ## get value associated with current quantile
@@ -99,11 +136,3 @@ def calculate_banker_offer(round_number, cases,  model_dict=model, n_sims=30):
     bootstrapped_offer_ratio = sum(random.choices(qtile_range, k=n_sims)) / n_sims
 
     return remaining_avg * bootstrapped_offer_ratio
-
-# def calculate_banker_offer(round_number, cases):
-#     return model.predict(
-#         {
-#             'round' : round_number,
-#             'remaining_avg' : sum(cases.values()) / len(cases)
-#         }
-#     ).iloc[0]

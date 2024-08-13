@@ -13,10 +13,11 @@ def play_dond():
     ]
     random.shuffle(case_values)
     cases = {i+1 : case_values[i] for i in range(len(case_values))}
+    deal_cases = cases.copy()
 
     turns = [6,5,4,3,2,1,1,1,1]
     round_offer_accepted = None
-    stay_or_switch = None
+    stay = None
     other_choice = None
     offers_tracker = {}
 
@@ -29,11 +30,12 @@ def play_dond():
         for _ in range(turns[round_number]):
             current_turn_case = select_valid_case(cases)
             eliminated_value = cases.pop(current_turn_case)
+            deal_cases.pop(current_turn_case)
             case_values.pop(case_values.index(eliminated_value))
             print(f"Case #{current_turn_case} contained ${eliminated_value:.2f}")
         
         ## calculate offer
-        current_offer = calculate_banker_offer(current_round, cases)
+        current_offer = calculate_banker_offer(current_round, deal_cases)
         offers_tracker[current_round] = current_offer
         print(f"The banker's offer for round {current_round} is ${current_offer:.2f}.")
         time.sleep(1)
@@ -61,13 +63,12 @@ def play_dond():
         if round_offer_accepted:
             pass
         else:
-            print(cases)
-            stay_or_switch = validate_player_decision(
+            stay = validate_player_decision(
                 prompt='No more rounds left.\nRemaining values:\n{}\nStick with your original case? (y/n):'.format(', '.join(str(c) for c in sorted(case_values))),
                 decisions=['y','n']
             )
             last_case = cases.pop(list(cases.keys())[0])
-            if stay_or_switch == 'y':
+            if stay == 'y':
                 player_winnings, other_choice = player_case_value, last_case
             else:
                 player_winnings, other_choice = last_case, player_case_value
@@ -78,6 +79,8 @@ def play_dond():
         offers_tracker=offers_tracker,
         player_case_number=player_case_number,
         player_case_value=player_case_value,
+        stay=stay,
+        other_choice=other_choice,
         round_offer_accepted=round_offer_accepted
     )
 
